@@ -1,0 +1,32 @@
+import express from "express";
+import multer from "multer";
+import path from "path";
+
+const app = express();
+
+// Multer setup
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/'); // photos 'uploads' folder में store होंगी
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname)); // unique नाम देना
+    }
+});
+
+const upload = multer({ storage: storage });
+
+// Route to upload photo
+app.post("/upload", upload.single('photo'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).send('No file uploaded.');
+    }
+    res.send({
+        message: 'Photo uploaded successfully',
+        photoPath: req.file.path  // ये path आप DB में store कर सकते हैं
+    });
+});
+
+app.listen(3000, () => {
+    console.log("Server started on http://localhost:3000");
+});
